@@ -1,4 +1,4 @@
-FROM php:7.3-apache
+FROM php:7.3.7-apache
 MAINTAINER Shane Mc Cormack <dataforce@dataforce.org.uk>
 
 WORKDIR /var/www
