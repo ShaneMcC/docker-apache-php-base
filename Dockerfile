@@ -12,6 +12,7 @@ RUN \
   docker-php-source extract && \
   docker-php-ext-install bcmath && \
   docker-php-ext-install pdo_mysql && \
+  docker-php-ext-install mysqli && \
   docker-php-ext-install intl && \
   pecl install -o -f memcached && \
   docker-php-ext-enable memcached && \
