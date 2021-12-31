@@ -1,4 +1,4 @@
-FROM php:8.0.8-apache
+FROM php:8.1.1-apache
 MAINTAINER Shane Mc Cormack <dataforce@dataforce.org.uk>
 
 WORKDIR /var/www
