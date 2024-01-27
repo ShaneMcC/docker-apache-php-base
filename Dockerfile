@@ -7,7 +7,7 @@ COPY errors.ini /usr/local/etc/php/conf.d/errors.ini
 
 RUN \
   a2enmod rewrite && \
-  apt-get update && apt-get install -y git unzip libz-dev libmemcached-dev libicu-dev && \
+  apt-get update && apt-get install -y git unzip libz-dev libmemcached-dev zlib1g-dev libssl-dev libicu-dev && \
   ln -s /usr/local/bin/php /usr/bin/php && \
   docker-php-source extract && \
   docker-php-ext-install bcmath && \
