@@ -7,11 +7,12 @@ COPY errors.ini /usr/local/etc/php/conf.d/errors.ini
 
 RUN \
   a2enmod rewrite && \
-  apt-get update && apt-get install -y git unzip libz-dev libmemcached-dev zlib1g-dev libssl-dev libicu-dev && \
+  apt-get update && apt-get install -y git unzip libz-dev libmemcached-dev zlib1g-dev libssl-dev libicu-dev libpq-dev && \
   ln -s /usr/local/bin/php /usr/bin/php && \
   docker-php-source extract && \
   docker-php-ext-install bcmath && \
   docker-php-ext-install pdo_mysql && \
+  docker-php-ext-install pdo_pgsql && \
   docker-php-ext-install mysqli && \
   docker-php-ext-install intl && \
   pecl install -o -f memcached && \
