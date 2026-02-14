@@ -8,5 +8,5 @@ permissions:
 
 jobs:
   dependabot:
-    uses: ShaneMcC/.github/workflows/automergeMinorOrPatch.yml@master
+    uses: shanemcc/.github/workflows/automergeMinorOrPatch.yml@master
     secrets: inherit
