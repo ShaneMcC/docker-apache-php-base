@@ -2,49 +2,71 @@ name: Build and Push
 
 on:
   workflow_dispatch:
+    inputs:
+      scope:
+        description: Which version to build
+        type: choice
+        default: all
+        options:
+          - all
+          - php74
+          - php84
+          - php85
   push:
     branches: [master]
-    paths-ignore:
-      - '.github/**'
-      - '*.md'
-      - 'LICENSE'
+    paths:
+      - 'Dockerfile-*'
+      - 'errors.ini'
 
 jobs:
-  build:
+  changes:
     runs-on: ubuntu-latest
-    name: Build and Push
-    concurrency: build-and-push
-
+    outputs:
+      php74: ${{ steps.filter.outputs.php74 }}
+      php84: ${{ steps.filter.outputs.php84 }}
+      php85: ${{ steps.filter.outputs.php85 }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v3
+        id: filter
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          filters: |
+            php74:
+              - 'Dockerfile-7.4'
+              - 'errors.ini'
+            php84:
+              - 'Dockerfile-8.4'
+              - 'errors.ini'
+            php85:
+              - 'Dockerfile-8.5'
+              - 'errors.ini'
 
-      - name: Login to Registry
-        uses: docker/login-action@v2
-        with:
-          registry: registry.shanemcc.net
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+  build-php74:
+    needs: changes
+    if: needs.changes.outputs.php74 == 'true' || (github.event_name == 'workflow_dispatch' && (inputs.scope == 'all' || inputs.scope == 'php74'))
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      dockerfile: Dockerfile-7.4
+      tags: latest7 latest7.4
+      scope: php74
+    secrets: inherit
 
-      - name: Build and Push
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          context: .
-          tags: |
-            docker.io/shanemcc/docker-apache-php-base:latest
-            registry.shanemcc.net/public/docker-apache-php-base:latest
-            docker.io/shanemcc/docker-apache-php-base:latest8
-            registry.shanemcc.net/public/docker-apache-php-base:latest8
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          provenance: false
+  build-php84:
+    needs: changes
+    if: needs.changes.outputs.php84 == 'true' || (github.event_name == 'workflow_dispatch' && (inputs.scope == 'all' || inputs.scope == 'php84'))
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      dockerfile: Dockerfile-8.4
+      tags: latest8.4
+      scope: php84
+    secrets: inherit
+
+  build-php85:
+    needs: changes
+    if: needs.changes.outputs.php85 == 'true' || (github.event_name == 'workflow_dispatch' && (inputs.scope == 'all' || inputs.scope == 'php85'))
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      dockerfile: Dockerfile-8.5
+      tags: latest latest8 latest8.5
+      scope: php85
+    secrets: inherit
