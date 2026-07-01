@@ -7,6 +7,14 @@ updates:
   open-pull-requests-limit: 10
   cooldown:
     default-days: 32 # Slightly over 1 month
+  ignore:
+  # Each Dockerfile-X.Y is pinned to a specific PHP major.minor line.
+  # Only allow patch bumps within that line so dependabot doesn't drag
+  # e.g. Dockerfile-7.4 up to the latest 8.5.x tag.
+  - dependency-name: "php"
+    update-types:
+    - "version-update:semver-major"
+    - "version-update:semver-minor"
   groups:
     docker-minor-patch:
       update-types:
