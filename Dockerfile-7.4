@@ -1,6 +1,9 @@
 FROM php:7.4.33-apache
 MAINTAINER Shane Mc Cormack <dataforce@dataforce.org.uk>
 
+ARG MEMCACHED_VERSION=3.4.0
+ARG REDIS_VERSION=6.3.0
+
 COPY errors.ini /usr/local/etc/php/conf.d/errors.ini
 
 RUN \
@@ -15,11 +18,10 @@ RUN \
   docker-php-ext-install intl && \
   docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp && \
   docker-php-ext-install gd && \
-  pecl install -o -f memcached && \
-  docker-php-ext-enable memcached && \
-  pecl install -o -f redis && \
-  rm -rf /tmp/pear && \
-  docker-php-ext-enable redis && \
+  mkdir -p /usr/src/php/ext/memcached /usr/src/php/ext/redis && \
+  curl -fsSL https://github.com/php-memcached-dev/php-memcached/archive/refs/tags/v${MEMCACHED_VERSION}.tar.gz | tar -xz -C /usr/src/php/ext/memcached --strip-components=1 && \
+  curl -fsSL https://github.com/phpredis/phpredis/archive/refs/tags/${REDIS_VERSION}.tar.gz | tar -xz -C /usr/src/php/ext/redis --strip-components=1 && \
+  docker-php-ext-install memcached redis && \
   docker-php-source delete && \
   curl -sS https://getcomposer.org/installer | php -- --no-ansi --install-dir=/usr/bin --filename=composer
 
