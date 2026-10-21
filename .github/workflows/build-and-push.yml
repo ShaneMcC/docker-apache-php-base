@@ -10,6 +10,8 @@ on:
         options:
           - all
           - php74
+          - php82
+          - php83
           - php84
           - php85
   push:
@@ -23,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       php74: ${{ steps.filter.outputs.php74 }}
+      php82: ${{ steps.filter.outputs.php82 }}
+      php83: ${{ steps.filter.outputs.php83 }}
       php84: ${{ steps.filter.outputs.php84 }}
       php85: ${{ steps.filter.outputs.php85 }}
     steps:
@@ -33,6 +37,12 @@ jobs:
           filters: |
             php74:
               - 'Dockerfile-7.4'
+              - 'errors.ini'
+            php82:
+              - 'Dockerfile-8.2'
+              - 'errors.ini'
+            php83:
+              - 'Dockerfile-8.3'
               - 'errors.ini'
             php84:
               - 'Dockerfile-8.4'
@@ -49,6 +59,26 @@ jobs:
       dockerfile: Dockerfile-7.4
       tags: latest7 latest7.4
       scope: php74
+    secrets: inherit
+
+  build-php82:
+    needs: changes
+    if: needs.changes.outputs.php82 == 'true' || (github.event_name == 'workflow_dispatch' && (inputs.scope == 'all' || inputs.scope == 'php82'))
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      dockerfile: Dockerfile-8.2
+      tags: latest8.2
+      scope: php82
+    secrets: inherit
+
+  build-php83:
+    needs: changes
+    if: needs.changes.outputs.php83 == 'true' || (github.event_name == 'workflow_dispatch' && (inputs.scope == 'all' || inputs.scope == 'php83'))
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      dockerfile: Dockerfile-8.3
+      tags: latest8.3
+      scope: php83
     secrets: inherit
 
   build-php84:
