@@ -30,8 +30,8 @@ jobs:
       php84: ${{ steps.filter.outputs.php84 }}
       php85: ${{ steps.filter.outputs.php85 }}
     steps:
-      - uses: actions/checkout@v7.0.0
-      - uses: dorny/paths-filter@v4.0.2
+      - uses: actions/checkout@v7.0.1
+      - uses: dorny/paths-filter@v4.0.3
         id: filter
         with:
           filters: |
