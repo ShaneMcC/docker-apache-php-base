@@ -14,6 +14,7 @@ on:
           - php83
           - php84
           - php85
+          - php86
   push:
     branches: [master]
     paths:
@@ -29,6 +30,7 @@ jobs:
       php83: ${{ steps.filter.outputs.php83 }}
       php84: ${{ steps.filter.outputs.php84 }}
       php85: ${{ steps.filter.outputs.php85 }}
+      php86: ${{ steps.filter.outputs.php86 }}
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: dorny/paths-filter@v4.0.3
@@ -49,6 +51,9 @@ jobs:
               - 'errors.ini'
             php85:
               - 'Dockerfile-8.5'
+              - 'errors.ini'
+            php86:
+              - 'Dockerfile-8.6'
               - 'errors.ini'
 
   build-php74:
@@ -99,4 +104,14 @@ jobs:
       dockerfile: Dockerfile-8.5
       tags: latest latest8 latest8.5
       scope: php85
+    secrets: inherit
+
+  build-php86:
+    needs: changes
+    if: needs.changes.outputs.php86 == 'true' || (github.event_name == 'workflow_dispatch' && (inputs.scope == 'all' || inputs.scope == 'php86'))
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      dockerfile: Dockerfile-8.6
+      tags: latest8.6
+      scope: php86
     secrets: inherit

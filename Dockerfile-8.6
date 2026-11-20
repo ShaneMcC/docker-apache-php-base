@@ -1,0 +1,34 @@
+FROM php:8.6.0-apache
+MAINTAINER Shane Mc Cormack <dataforce@dataforce.org.uk>
+
+WORKDIR /var/www
+
+# No tagged memcached/phpredis release builds against PHP 8.6 yet (8.6 removed
+# XtOffsetOf/zval_dtor), so pin to dev-branch commits with the fixes. Switch
+# back to release tags (archive/refs/tags/...) once 8.6-compatible releases exist.
+ARG MEMCACHED_VERSION=3c73b4f0abe5bbfbbbe686f44a8ae52fcd3e67ee
+ARG REDIS_VERSION=a6ce1e60b3e81ce3b25174aa5aaefd5590dc64fd
+
+COPY errors.ini /usr/local/etc/php/conf.d/errors.ini
+
+RUN \
+  a2enmod rewrite && \
+  apt-get update && apt-get install -y git unzip libz-dev libmemcached-dev zlib1g-dev libssl-dev libicu-dev libonig-dev libfreetype6-dev libjpeg62-turbo-dev libpng-dev libwebp-dev libpq-dev && \
+  ln -s /usr/local/bin/php /usr/bin/php && \
+  docker-php-source extract && \
+  docker-php-ext-install bcmath && \
+  docker-php-ext-install mbstring && \
+  docker-php-ext-install pdo_mysql && \
+  docker-php-ext-install pdo_pgsql && \
+  docker-php-ext-install mysqli && \
+  docker-php-ext-install intl && \
+  docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp && \
+  docker-php-ext-install gd && \
+  mkdir -p /usr/src/php/ext/memcached /usr/src/php/ext/redis && \
+  curl -fsSL https://github.com/php-memcached-dev/php-memcached/archive/${MEMCACHED_VERSION}.tar.gz | tar -xz -C /usr/src/php/ext/memcached --strip-components=1 && \
+  curl -fsSL https://github.com/phpredis/phpredis/archive/${REDIS_VERSION}.tar.gz | tar -xz -C /usr/src/php/ext/redis --strip-components=1 && \
+  docker-php-ext-install memcached redis && \
+  docker-php-source delete && \
+  curl -sS https://getcomposer.org/installer | php -- --no-ansi --install-dir=/usr/bin --filename=composer
+
+EXPOSE 80
